@@ -2,11 +2,12 @@
 
 import dataclasses
 from pathlib import Path
+from typing import Any
 
 from porerefiner.notifiers import Notifier
 from porerefiner.jobs import FileJob, RunJob
-from porerefiner.jobs.submitter import Submitter
-from porerefiner.model import Run, File
+from porerefiner.jobs.submitters import Submitter
+from porerefiner.models import Run, File
 
 @dataclass
 class {{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Notifier(Notifier):
@@ -14,7 +15,7 @@ class {{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Noti
 
     {{cookiecutter.project_slug}}_sample_param: str
 
-    async def notify(self, run: Run, state: NoneType, message: str) -> None:
+    async def notify(self, run: Run, state: Any, message: str) -> None:
         "Handler for notifications. `state` is not currently implemented."
         pass
 
