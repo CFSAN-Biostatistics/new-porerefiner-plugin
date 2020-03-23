@@ -1,8 +1,8 @@
 """Main module."""
 
-import dataclasses
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Union, Tuple
 
 from porerefiner.notifiers import Notifier
 from porerefiner.jobs import FileJob, RunJob
