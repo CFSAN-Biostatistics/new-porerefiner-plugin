@@ -80,3 +80,37 @@ More examples to come in the Porerefiner Config Cookbook:
 https://github.com/crashfrog/porerefiner-config-cookbook
 
 If you develop a useful or interesting config, please consider contributing it to the cookbook using a pull request.
+
+Installing Your Plugin
+----------------------
+
+The project's `setup.py` is, well, set up already. You can use it to install your plugin:
+
+::
+
+    ./setup.py install
+
+or
+
+::
+
+    make install
+
+there's a convenient Makefile:
+
+::
+
+    $ make help
+    clean                remove all build, test, coverage and Python artifacts
+    clean-build          remove build artifacts
+    clean-pyc            remove Python file artifacts
+    clean-test           remove test and coverage artifacts
+    lint                 check style with flake8
+    test                 run tests quickly with the default Python
+    test-all             run tests on every Python version with tox
+    coverage             check code coverage quickly with the default Python
+    docs                 generate Sphinx HTML documentation, including API docs
+    servedocs            compile the docs watching for changes
+    release              package and upload a release
+    dist                 builds source and wheel package
+    install              install the package to the active Python's site-packages
