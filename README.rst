@@ -64,22 +64,11 @@ Submitters
 
 Submitters are the interface between jobs and the execution system. For instance, the ``HpcSubmitter`` knows how to use SSH to execute commands on a typical HPC using ``qsub``. PoreRefiner has an additional ``LocalSubmitter`` which simply runs commands locally, in a subprocess.
 
-Here's an example of a simple post-run workflow configuration using the generic file job and the local submitter:
-
-::
-
-    submitters:
-    - class: LocalSubmitter
-      jobs:
-      - class: GenericFileJob
-        config:
-          command: cp {file.path} /network/output/{run.name}/{file.name}
-
-More examples to come in the Porerefiner Config Cookbook:
+If you develop a useful or interesting config, please consider contributing it to the cookbook using a pull request:
 
 https://github.com/crashfrog/porerefiner-config-cookbook
 
-If you develop a useful or interesting config, please consider contributing it to the cookbook using a pull request.
+
 
 Installing Your Plugin
 ----------------------
