@@ -8,19 +8,6 @@ Cookiecutter_ template for a PoreRefiner plugin.
 * Documentation: https://new-porerefiner-plugin.readthedocs.io/
 * Free software: BSD license
 
-Features
---------
-
-* Testing setup with ``unittest`` and ``python setup.py test`` or ``pytest``
-* Travis-CI_: Ready for Travis Continuous Integration testing
-* Tox_ testing: Setup to easily test for Python 3.5, 3.6, 3.7, 3.8
-* Sphinx_ docs: Documentation ready for generation with, for example, `Read the Docs`_
-* bump2version_: Pre-configured version bumping with a single command
-* Auto-release to PyPI_ when you push a new tag to master (optional)
-* Command line interface using Click (optional)
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-
 Quickstart
 ----------
 

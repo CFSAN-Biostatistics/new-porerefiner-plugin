@@ -2,33 +2,15 @@
 
 """Tests for `{{ cookiecutter.project_slug }}` package."""
 
-{% if cookiecutter.use_pytest == 'y' -%}
-import pytest
-{% else %}
+from asyncio import run
+
+from tests import *
+from hypothesis import given
+from hypothesis.strategies import *
+
 import unittest
-{%- endif %}
 
-from {{ cookiecutter.project_slug }} import {{ cookiecutter.project_slug }}
-
-{%- if cookiecutter.use_pytest == 'y' %}
-
-
-@pytest.fixture
-def response():
-    """Sample pytest fixture.
-
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
-
-
-def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument."""
-    # from bs4 import BeautifulSoup
-    # assert 'GitHub' in BeautifulSoup(response.content).title.string
-
-{%- else %}
+from {{ cookiecutter.project_slug }}.{{ cookiecutter.project_slug }} import *
 
 
 class Test{{ cookiecutter.project_slug|title }}(unittest.TestCase):
@@ -36,11 +18,102 @@ class Test{{ cookiecutter.project_slug|title }}(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures, if any."""
+        pass
 
     def tearDown(self):
         """Tear down test fixtures, if any."""
+        pass
+    
+    # Notifiers
 
-    def test_000_something(self):
-        """Test something."""
+    @given(
+        notifiers(subclass_of={{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Notifier, classdef={}),
+        runs(),
+        just(dict()),
+        strings()
+    )
+    def test_{{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Notifier_notify(self, notifier, run, state, message):
+        """Notifier.notify"""
+        self.assertIsNone(notifier.notify(run, state, message))
 
-{%- endif %}
+    # Submitters
+
+    @given(
+        submitters(subclass_of={{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Submitter, classdef={})
+    )
+    def test_{{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Submitter_test_noop(self, submitter):
+        """Submitter.test_noop"""
+        self.assertIsNone(run(submitter.test_noop()))
+
+    @given(
+        submitters(subclass_of={{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Submitter, classdef={}),
+        paths()
+    )
+    def test_{{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Submitter_reroot_path(self, submitter, path):
+        """Submitter.reroot_path"""
+        self.assertIsNotNone(submitter.reroot_path(path))
+
+    @given(
+        submitters(subclass_of={{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Submitter, classdef={}),
+        strings(),
+        paths(real=True),
+        paths(),
+        oneof(just(dict), dict(TEST=strings().example())) # empty and non-empty dicts
+    )
+    def test_{{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Submitter_begin_job(self, submitter, execution_string, datadir, remotedir, environment_hints):
+        """Submitter.begin_job"""
+        self.assertIsNotNone(run(submitter.begin_job(execution_string, datadir, remotedir, environment_hints)))
+
+    @given(
+        submitters(subclass_of={{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Submitter, classdef={}),
+        strings()
+    )
+    def test_{{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Submitter_test_noop(self, submitter, job):
+        """Submitter.poll_job"""
+        self.assertIsNone(run(submitter.poll_job(job)))
+
+    #FileJobs
+
+    @given(
+        jobs(subclass_of={{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}FileJob, classdef={}),
+        runs(),
+        files(real=True),
+        paths(),
+        paths()
+    )
+    def test_{{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}FileJob_submit(self, job, run, file, datadir, remotedir):
+        """FileJob.submit"""
+        self.assertIsNotNone(job.setup(run, datadir, remotedir))
+
+    @given(
+        jobs(subclass_of={{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}FileJob, classdef={}),
+        runs(),
+        files(real=True),
+        paths(),
+        oneof(strings(), ints())
+    )
+    def test_{{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}FileJob_collect(self, job, run, file, datadir, pid):
+        """FileJob.collect"""
+        self.assertIsNone(job.collect(run, datadir, pid))
+
+    #RunJobs
+
+    @given(
+        jobs(subclass_of={{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}RunJob, classdef={}),
+        runs(),
+        paths(),
+        paths()
+    )
+    def test_{{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}RunJob_submit(self, job, run, datadir, remotedir):
+        """RunJob.submit"""
+        self.assertIsNotNone(job.setup(run, datadir, remotedir))
+
+    @given(
+        jobs(subclass_of={{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}RunJob, classdef={}),
+        runs(),
+        paths(),
+        oneof(strings(), ints())
+    )
+    def test_{{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}RunJob_collect(self, job, run, datadir, pid):
+        """RunJob.collect"""
+        self.assertIsNone(job.collect(run, datadir, pid))
