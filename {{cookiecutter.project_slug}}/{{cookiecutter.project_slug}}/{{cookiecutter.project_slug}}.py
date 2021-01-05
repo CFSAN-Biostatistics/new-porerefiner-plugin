@@ -8,6 +8,8 @@ from porerefiner.notifiers import Notifier
 from porerefiner.jobs import FileJob, RunJob
 from porerefiner.jobs.submitters import Submitter
 from porerefiner.models import Run, File
+from porerefiner.samplesheets import SnifferFor, ParserFor
+from porerefiner.protocols.porerefiner.rpc.porerefiner_pb2 import SampleSheet
 
 @dataclass
 class {{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Notifier(Notifier):
@@ -45,23 +47,65 @@ class {{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Subm
 class {{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}FileJob(FileJob):
     """Configurable job that will be triggered whenever a file enters a completed state."""
 
-    def setup(self, run: Run, file: File, datadir: Path, remotedir: Path) -> Union[str, Tuple[str, dict]]:
-        "Set up the job. Return a string for the job submitter, and optionally a dictionary of execution hints."
-        pass
+    command1: str = "cp {file} {remotedir}/{file}"
+    command2: str = "convert {remotedir}/{file} --fasta >> {remotedir}/{file.name}.converted.fasta"
 
-    def collect(self, run: Run, file: File, datadir: Path, pid: Union[str, int]) -> None:
-        "Post-job processing. Handle cleanup and make changes to the run or its records."
-        pass
+    def run(self, run: Run, file: File, datadir: Path, remotedir: Path) -> Generator[Union[str, Tuple[str, dict]], Union[CompletedProcess, int, str]]:
+        """File job method. Set up the job, then yield a command string or
+           a tuple of a command string plus a dictionary of execution hints.
+           The job runner will send back the result if it's successful."""
+        errcode = yield command1.format(**locals())
+        if not errcode:
+            yield command2.format(**locals())
 
 
 @dataclass
 class {{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}RunJob(RunJob):
     """Configurable job that will be triggered whenever a run enters a completed state."""
 
-    def setup(self, run: Run, datadir: Path, remotedir: Path) -> Union[str, Tuple[str, dict]]:
-        "Set up the job. Return a string for the job submitter, and optionally a dictionary of execution hints."
-        pass
+    command: str = "cwltool {self.cwl} --name{run.name} --run {remotedir}"
 
-    def collect(self, run: Run, datadir: Path, pid: Union[str, int]) -> None:
-        "Post-job processing. Handle cleanup and make changes to the run or its records."
-        pass
+    def run(self, run: Run, datadir: Path, remotedir: Path) -> Generator[Union[str, Tuple[str, dict]], Union[CompletedProcess, int, str]]:
+        """Run job method."""
+        yield command.format(**locals())
+
+# Tips for writing a sample sheet parser:
+# 1) Write a sniffer that's pretty specific; have the docstring be an example of the format in TSV
+# 2) Your example can be cut and pasted in from Excel
+# 3) Decorate the sniffer with whether it's for CSV or XLS format or both
+# 4) Link the parser to the sniffer using the ParserFor decorator and the name of your sniffer
+
+@SnifferFor.csv
+def {{cookiecutter.project_slug}}(rows):
+    """porerefiner_ver	1.0.1
+library_id	
+sequencing_kit	
+barcode_kit	
+sample_id	accession	barcode_id	organism	extraction_kit	comment user
+TEST	TEST	TEST	TEST	TEST	TEST	TEST"""
+    note, ver, *_ = rows[0]
+    return note == 'porerefiner_ver' and ver == '1.0.1'
+
+
+@ParserFor.{{cookiecutter.project_slug}}
+def {{cookiecutter.project_slug}}_parser(rows):
+    "{{cookiecutter.project_slug}} samplesheet parser"
+    rows = iter(rows)
+    ss = SampleSheet()
+    ss.date.GetCurrentTime()
+    _, ss.porerefiner_ver, *_ = next(rows)
+    _, ss.library_id, *_ = next(rows)
+    _, ss.sequencing_kit = next(rows)
+    key, value, *rest = next(rows)
+    if 'barcode_kit' in key: #if it's not the header
+        [ss.barcode_kit.append(barcode) for barcode in [value] + rest]
+        next(rows) # skip the header
+    for sample_id, accession, barcode_id, organism, extraction_kit, comment, user, *_ in rows:
+        ss.samples.add(sample_id=sample_id,
+                        accession=accession,
+                        barcode_id=barcode_id,
+                        organism=organism,
+                        extraction_kit=extraction_kit,
+                        comment=comment,
+                        user=user)
+    return ss
