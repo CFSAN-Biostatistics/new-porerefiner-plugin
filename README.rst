@@ -51,6 +51,18 @@ Submitters
 
 Submitters are the interface between jobs and the execution system. For instance, the ``HpcSubmitter`` knows how to use SSH to execute commands on a typical HPC using ``qsub``. PoreRefiner has an additional ``LocalSubmitter`` which simply runs commands locally, in a subprocess.
 
+Sniffers and Parsers
+====================
+
+If you define your own sample sheet, you can define sniffers and parsers for it. The Porerefiner client ``prfr`` will load sample sheets in XLSX/XLS format (Excel) and in CSV/TSV format. A sniffer should be a function returns `true` if the format is in the format the sniffer is intended to sniff. A `False` or `None` result, or an exception, will be treated as rejection by the sniffer, so it's fine to build in a lot of assumptions about your format (stuff that would trigger `ValueError` when applied to a non-conforming format, for instance.)
+
+Name your sniffer after the format its meant to sniff, then use the ParserFor decorator to link a parser to it. Sniffers should only sniff a single format, but a parser can be more general and be linked to several sniffers.
+
+Sniffers and parsers don't usually have any config.
+
+Config Cookbook
+===============
+
 If you develop a useful or interesting config, please consider contributing it to the cookbook using a pull request:
 
 https://github.com/crashfrog/porerefiner-config-cookbook
