@@ -5,9 +5,9 @@ from pathlib import Path
 from typing import Any, Union, Tuple
 
 from porerefiner.notifiers import Notifier
-from porerefiner.jobs import FileJob, RunJob
+from porerefiner.jobs import FileJob, RunJob, SampleSheetJob
 from porerefiner.jobs.submitters import Submitter
-from porerefiner.models import Run, File
+from porerefiner.models import Run, File, SampleSheet
 from porerefiner.samplesheets import SnifferFor, ParserFor
 from porerefiner.protocols.porerefiner.rpc.porerefiner_pb2 import SampleSheet
 
@@ -44,8 +44,18 @@ class {{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Subm
         pass
 
 @dataclass
+class {{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}SampleSheetJob(SampleSheetJob):
+    """Configurable job that will be triggered whenever a new sample sheet is loaded."""
+
+    command1: str = "touch {samplesheet.path}/started"
+
+    def run(self, samplesheet: SampleSheet) -> Generator[Union[str, Tuple[str, dict]], Union[CompletedProcess, int, str]]:
+        """SampleSheet job method. Access individual samples by samplesheet.samples ."""
+        yield command.format(**locals())
+
+@dataclass
 class {{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}FileJob(FileJob):
-    """Configurable job that will be triggered whenever a file enters a completed state."""
+    """Configurable job that will be triggered whenever a file enters an idle state."""
 
     command1: str = "cp {file} {remotedir}/{file}"
     command2: str = "convert {remotedir}/{file} --fasta >> {remotedir}/{file.name}.converted.fasta"
