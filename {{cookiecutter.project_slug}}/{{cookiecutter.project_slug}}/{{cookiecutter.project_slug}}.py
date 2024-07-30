@@ -51,7 +51,7 @@ class {{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}Samp
 
     def run(self, samplesheet: SampleSheet) -> Generator[Union[str, Tuple[str, dict]], Union[CompletedProcess, int, str]]:
         """SampleSheet job method. Access individual samples by samplesheet.samples ."""
-        yield command.format(**locals())
+        yield self.command.format(**locals())
 
 @dataclass
 class {{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}FileJob(FileJob):
@@ -64,9 +64,9 @@ class {{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}File
         """File job method. Set up the job, then yield a command string or
            a tuple of a command string plus a dictionary of execution hints.
            The job runner will send back the result if it's successful."""
-        errcode = yield command1.format(**locals())
+        errcode = yield self.command1.format(**locals())
         if not errcode:
-            yield command2.format(**locals())
+            yield self.command2.format(**locals())
 
 
 @dataclass
@@ -77,7 +77,7 @@ class {{cookiecutter.project_slug.replace('_',' ').title().replace(' ','')}}RunJ
 
     def run(self, run: Run, datadir: Path, remotedir: Path) -> Generator[Union[str, Tuple[str, dict]], Union[CompletedProcess, int, str]]:
         """Run job method."""
-        yield command.format(**locals())
+        yield self.command.format(**locals())
 
 # Tips for writing a sample sheet parser:
 # 1) Write a sniffer that's pretty specific; have the docstring be an example of the format in TSV
@@ -94,7 +94,7 @@ barcode_kit
 sample_id	accession	barcode_id	organism	extraction_kit	comment user
 TEST	TEST	TEST	TEST	TEST	TEST	TEST"""
     note, ver, *_ = rows[0]
-    return note == 'porerefiner_ver' and ver == '1.0.1'
+    return note == 'porerefiner_ver' and ver == '{{cookiecutter.project_slug}}_1.0.1'
 
 
 @ParserFor.{{cookiecutter.project_slug}}
