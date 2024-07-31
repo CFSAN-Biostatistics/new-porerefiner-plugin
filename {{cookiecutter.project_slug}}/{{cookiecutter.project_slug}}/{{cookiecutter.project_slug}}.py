@@ -2,7 +2,8 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Union, Tuple
+from typing import Any, Union, Tuple, Generator
+from subprocess import CompletedProcess
 
 from porerefiner.notifiers import Notifier
 from porerefiner.jobs import FileJob, RunJob, SampleSheetJob
